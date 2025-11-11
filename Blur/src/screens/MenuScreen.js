@@ -1,10 +1,17 @@
-import React from 'react';
+import {React, useEffect} from 'react';
 import { View, Text, StyleSheet, BackHandler } from 'react-native'; 
 import { MenuButton } from '../components/MenuButton';
-
+import musicService from '../services/MusicService';
 const MenuScreen = ({ navigation }) => {
+  useEffect(() => {
+    // Воспроизводим боевую музыку при начале игры
+    musicService.playMusic('menu');
+  }, []);
+
   const handlePlay = () => {
-    navigation.navigate('Game');
+    navigation.navigate('Game', {
+      enemy: { name: 'Dummy', hp: 80, attack: 8 } 
+    });
   };
 
   const handleSettings = () => {
