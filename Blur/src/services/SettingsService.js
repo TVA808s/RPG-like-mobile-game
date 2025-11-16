@@ -1,11 +1,13 @@
+// services/SettingsService.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SETTINGS_KEY = '@settings';
 
 const defaultSettings = {
   soundEnabled: true,
+  soundVolume: 0.8,
   musicEnabled: true,
-  volume: 1.0, // от 0 до 1
+  musicVolume: 1.0,
 };
 
 export const SettingsService = {
@@ -26,4 +28,24 @@ export const SettingsService = {
       console.error('Error saving settings:', error);
     }
   },
+
+  // Специальные методы для аудио настроек
+  async getAudioSettings() {
+    const settings = await this.getSettings();
+    return {
+      soundEnabled: settings.soundEnabled,
+      soundVolume: settings.soundVolume,
+      musicEnabled: settings.musicEnabled,
+      musicVolume: settings.musicVolume,
+    };
+  },
+
+  async saveAudioSettings(audioSettings) {
+    const currentSettings = await this.getSettings();
+    const updatedSettings = {
+      ...currentSettings,
+      ...audioSettings
+    };
+    await this.saveSettings(updatedSettings);
+  }
 };

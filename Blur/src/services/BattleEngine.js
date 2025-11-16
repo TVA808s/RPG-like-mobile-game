@@ -1,6 +1,6 @@
 // services/BattleEngine.js
 import PlayerService from './PlayerService';
-
+import soundService from './SoundService';
 class BattleEngine {
   constructor(enemy) {
     // Принимаем готового врага вместо конфига
@@ -50,7 +50,7 @@ class BattleEngine {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
 
     const player = PlayerService.getPlayer();
-    
+    soundService.playSound('player.attack')
     // Формула урона: базовый урон * рандом (0.5 - 1.2)
     const baseDamage = player.attack;
     const randomMultiplier = 0.5 + Math.random() * 0.7;
@@ -67,7 +67,7 @@ class BattleEngine {
     damage = Math.floor(damage);
     
     this.enemy.hp = Math.max(0, this.enemy.hp - damage);
-    
+ 
     this.lastDamage = damage;
     this.lastIsCritical = isCritical;
     
@@ -136,6 +136,7 @@ class BattleEngine {
     this.round++;
 
     const playerBefore = PlayerService.getPlayer();
+    soundService.playSound('player.hit');
     let damage = isPlayerDefending 
       ? Math.floor((0.8 + Math.random() * 0.7) * this.enemy.attack) - Math.floor(playerBefore.defense * 1.4)
       : Math.floor((0.8 + Math.random() * 0.7) * this.enemy.attack);

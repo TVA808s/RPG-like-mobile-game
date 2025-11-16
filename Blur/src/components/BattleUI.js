@@ -7,6 +7,7 @@ import Sword from '../assets/icons/BloodySword.svg';
 import Shield from '../assets/icons/BxsShieldAlt2.svg';
 import Item from '../assets/icons/GarbageResidual.svg';
 import Mercy from '../assets/icons/WindySnow.svg';
+import soundService from '../services/SoundService';
 
 const BattleUI = ({ 
   battleState, 
@@ -16,9 +17,7 @@ const BattleUI = ({
   onMercy
 }) => {
   const [attackAnim] = useState(new Animated.Value(0));
-  
   const { player, enemy, round, isPlayerTurn, mercyAvailable } = battleState;
-  
   const playerImage = ImageService.getImage('player');
   const enemyImage = ImageService.getImage(enemy.image);
 

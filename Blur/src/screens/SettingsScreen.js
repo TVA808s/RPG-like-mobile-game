@@ -1,102 +1,76 @@
-import React, { useState, useEffect, useRef } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MenuButton } from '../components/MenuButton';
-import musicService from '../services/MusicService'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import musicService from '../services/MusicService';
+import soundService from '../services/SoundService';
+import { SettingsService } from '../services/SettingsService';
 import Slider from '@react-native-community/slider';
-
-const SETTINGS_KEY = '@game_settings';
-
 const SettingsScreen = ({ navigation }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundVolume, setSoundVolume] = useState(0.8);
   const [musicEnabled, setMusicEnabled] = useState(true);
-  const [volume, setVolume] = useState(1.0);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const isFirstLoad = useRef(true);
+  const [musicVolume, setMusicVolume] = useState(1.0);
 
   // Загрузка настроек при монтировании компонента
   useEffect(() => {
     loadSettings();
   }, []);
 
-  // Применяем настройки музыки только после инициализации
+  // Применяем настройки звуков при изменении
   useEffect(() => {
-    if (isInitialized) {
-      applyMusicSettings();
-    }
-  }, [musicEnabled, volume, isInitialized]);
+    applySoundSettings();
+  }, [soundEnabled, soundVolume]);
 
-  // Сохраняем настройки при любом изменении, но только после инициализации
+  // Применяем настройки музыки при изменении
   useEffect(() => {
-    if (isInitialized) {
-      saveSettings();
-    }
-  }, [soundEnabled, musicEnabled, volume, isInitialized]);
+    applyMusicSettings();
+  }, [musicEnabled, musicVolume]);
 
   const loadSettings = async () => {
     try {
-      const settingsJson = await AsyncStorage.getItem(SETTINGS_KEY);
-      if (settingsJson) {
-        const settings = JSON.parse(settingsJson);
-        
-        // Устанавливаем значения напрямую, без промежуточных применений
-        setSoundEnabled(settings.soundEnabled !== undefined ? settings.soundEnabled : true);
-        setMusicEnabled(settings.musicEnabled !== undefined ? settings.musicEnabled : true);
-        setVolume(settings.volume !== undefined ? settings.volume : 1.0);
-        
-        // Только после установки всех значений помечаем как инициализированные
-        setIsInitialized(true);
-        
-        // И только теперь применяем настройки музыки
-        await applyMusicSettingsImmediately(settings.musicEnabled, settings.volume);
-      } else {
-        // Если настроек нет, устанавливаем и применяем настройки по умолчанию
-        setIsInitialized(true);
-        await musicService.setVolume(1.0);
-      }
+      const settings = await SettingsService.getSettings();
+      setSoundEnabled(settings.soundEnabled);
+      setSoundVolume(settings.soundVolume);
+      setMusicEnabled(settings.musicEnabled);
+      setMusicVolume(settings.musicVolume);
     } catch (error) {
       console.log('Error loading settings:', error);
-      // В случае ошибки все равно помечаем как инициализированные
-      setIsInitialized(true);
-    }
-  };
-
-  const applyMusicSettingsImmediately = async (enabled, vol) => {
-    try {
-      // Применяем настройки без промежуточных состояний
-      const currentVolume = enabled ? vol : 0;
-      await musicService.setVolume(currentVolume);
-    } catch (error) {
-      console.log('Error applying music settings:', error);
-    }
-  };
-
-  const saveSettings = async () => {
-    // Не сохраняем настройки до завершения инициализации
-    if (!isInitialized) return;
-    
-    try {
-      const settings = {
-        soundEnabled,
-        musicEnabled,
-        volume
-      };
-      await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    } catch (error) {
-      console.log('Error saving settings:', error);
     }
   };
 
   const applyMusicSettings = async () => {
-    // Не применяем настройки до завершения инициализации
-    if (!isInitialized) return;
-    
     try {
-      // Устанавливаем громкость: если музыка включена - используем volume, если выключена - 0
-      const currentVolume = musicEnabled ? volume : 0;
-      await musicService.setVolume(currentVolume);
+      // Сохраняем настройки
+      await SettingsService.saveSettings({
+        soundEnabled,
+        soundVolume,
+        musicEnabled,
+        musicVolume
+      });
+      
+      // Применяем настройки к сервису музыки
+      await musicService.setEnabled(musicEnabled);
+      await musicService.setVolume(musicVolume);
     } catch (error) {
       console.log('Error applying music settings:', error);
+    }
+  };
+
+  const applySoundSettings = async () => {
+    try {
+      // Сохраняем настройки
+      await SettingsService.saveSettings({
+        soundEnabled,
+        soundVolume,
+        musicEnabled,
+        musicVolume
+      });
+      
+      // Применяем настройки к сервису звуков
+      await soundService.setEnabled(soundEnabled);
+      await soundService.setVolume(soundVolume);
+    } catch (error) {
+      console.log('Error applying sound settings:', error);
     }
   };
 
@@ -108,12 +82,16 @@ const SettingsScreen = ({ navigation }) => {
     setMusicEnabled(!musicEnabled);
   };
 
-  const handleVolumeChange = (value) => {
-    setVolume(value);
+  const toggleSound = () => {
+    setSoundEnabled(!soundEnabled);
   };
 
-  const handleSlidingComplete = (value) => {
-    setVolume(value);
+  const handleMusicVolumeChange = (value) => {
+    setMusicVolume(value);
+  };
+
+  const handleSoundVolumeChange = (value) => {
+    setSoundVolume(value);
   };
 
   return (
@@ -132,24 +110,59 @@ const SettingsScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
         
-        {/* Volume Slider */}
+        {/* Music Volume Slider */}
         <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Volume</Text>
+          <Text style={styles.settingText}>Music Volume</Text>
           <View style={styles.volumeContainer}>
             <Slider
               style={styles.slider}
               minimumValue={0}
               maximumValue={1}
-              value={volume}
-              onValueChange={handleVolumeChange}
-              onSlidingComplete={handleVolumeChange}
+              value={musicVolume}
+              onValueChange={handleMusicVolumeChange}
+              onSlidingComplete={handleMusicVolumeChange}
               minimumTrackTintColor="#4444ff"
               maximumTrackTintColor="#333333"
               thumbTintColor="#4444ff"
               step={0.01}
+              disabled={!musicEnabled}
             />
-            <Text style={styles.volumeText}>
-              {Math.round(volume * 100)}%
+            <Text style={[styles.volumeText, !musicEnabled && styles.disabledText]}>
+              {Math.round(musicVolume * 100)}%
+            </Text>
+          </View>
+        </View>
+
+        {/* Sound Toggle */}
+        <TouchableOpacity onPress={toggleSound} style={styles.settingItem}>
+          <Text style={styles.settingText}>Sound</Text>
+          <Text style={[
+            styles.settingValue, 
+            soundEnabled ? styles.enabled : styles.disabled
+          ]}>
+            {soundEnabled ? 'ON' : 'OFF'}
+          </Text>
+        </TouchableOpacity>
+        
+        {/* Sound Volume Slider */}
+        <View style={styles.settingItem}>
+          <Text style={styles.settingText}>Sound Volume</Text>
+          <View style={styles.volumeContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={1}
+              value={soundVolume}
+              onValueChange={handleSoundVolumeChange}
+              onSlidingComplete={handleSoundVolumeChange}
+              minimumTrackTintColor="#44ff44"
+              maximumTrackTintColor="#333333"
+              thumbTintColor="#44ff44"
+              step={0.01}
+              disabled={!soundEnabled}
+            />
+            <Text style={[styles.volumeText, !soundEnabled && styles.disabledText]}>
+              {Math.round(soundVolume * 100)}%
             </Text>
           </View>
         </View>
@@ -166,7 +179,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0a0404',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
   },
   title: {
     color: '#ffffff',
@@ -184,44 +196,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
-    minHeight: 60,
+    minHeight: 54,
   },
   settingText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 20,
     flex: 1,
   },
   settingValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 5,
-    minWidth: 60,
+    minWidth: 100,
     textAlign: 'center',
   },
   enabled: {
-    backgroundColor: '#44ff44',
+    backgroundColor: '#47e447ff',
     color: '#000000',
   },
   disabled: {
-    backgroundColor: '#ff4444',
+    backgroundColor: '#e44646ff',
     color: '#ffffff',
   },
   volumeContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 10,
-    height: 20, 
   },
   slider: {
     flex: 1,
-    height: 20,
-    width: 10,
+    height: 40,
   },
   volumeText: {
     color: '#ffffff',
@@ -229,7 +236,10 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     minWidth: 45,
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  disabledText: {
+    color: '#666666',
   },
 });
 

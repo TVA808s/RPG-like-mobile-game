@@ -1,25 +1,46 @@
-import {React, useEffect} from 'react';
-import { View, Text, StyleSheet, BackHandler } from 'react-native'; 
+import {React, useEffect, useRef} from 'react';
+import { View, Text, StyleSheet, BackHandler, AppState } from 'react-native';
 import { MenuButton } from '../components/MenuButton';
 import musicService from '../services/MusicService';
+
 const MenuScreen = ({ navigation }) => {
+  const appState = useRef(AppState.currentState);
+
   useEffect(() => {
-    // Воспроизводим боевую музыку при начале игры
+    // Воспроизводим музыку при монтировании компонента
     musicService.playMusic('menu');
+
+    const handleAppStateChange = (nextAppState) => {
+      if (appState.current.match(/active/) && nextAppState === 'background') {
+        // Приложение переходит в фоновый режим - ставим музыку на паузу
+        musicService.pauseMusic();
+      } else if (appState.current === 'background' && nextAppState === 'active') {
+        // Приложение возвращается из фонового режима - возобновляем музыку
+        musicService.resumeMusic();
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+      // Останавливаем музыку при размонтировании компонента
+      musicService.stopMusic();
+    };
   }, []);
 
   const handlePlay = () => {
-    navigation.navigate('Game', {
-      enemy: { name: 'Dummy', hp: 80, attack: 8 } 
-    });
+    navigation.navigate('Game');
   };
 
   const handleSettings = () => {
-    navigation.navigate('Settings'); // Переход на экран настроек
+    navigation.navigate('Settings');
   };
 
   const handleExit = () => {
-    // Выйти из приложения
+    // Останавливаем музыку перед выходом
+    musicService.stopMusic();
     BackHandler.exitApp();
   };
 
