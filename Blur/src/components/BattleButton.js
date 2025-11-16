@@ -1,32 +1,96 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, StyleSheet, View } from 'react-native';
 
 const BattleButton = ({ 
   title, 
   onPress, 
   disabled = false, 
-  variant = 'default', // 'default', 'mercy', 'attack', 'defend', 'item'
-  size = 'medium' // 'small', 'medium', 'large'
+  variant = 'default',
+  size = 'medium',
+  icon: IconComponent,
+  canMercy = false
 }) => {
-  const getButtonStyles = (pressed) => [
-    styles.button,
-    styles[`${size}Button`],
-    styles[`${variant}Button`],
-    pressed && styles.buttonPressed,
-    disabled && styles.buttonDisabled,
-    pressed && styles[`${variant}ButtonPressed`],
-    disabled && styles[`${variant}ButtonDisabled`]
-  ];
+  // Определяем цвета для разных состояний и вариантов
+  const getColors = (pressed) => {
+    const colors = {
+      mercy: {
+        normal: { 
+          text: canMercy ? '#8e52f0ff' : '#307ed6ff', 
+          border: canMercy ? '#0059ffff' : '#307ed6ff', 
+          background: canMercy ? '#1f1e20ff' : '#000000ff' 
+        },
+        pressed: {text: '#d1517bff', border: '#d1517bff', background: '#350211ff'},
+        disabled: {text: '#686868ff', border: '#686868ff', background: '#333333ff'}
+      },
+      attack: {
+        normal: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
+        pressed: { text: '#ee7f63ff', border: '#ee7f63ff', background: '#3f0700ff' },
+        disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
+      },
+      defend: {
+        normal: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
+        pressed: { text: '#ffcf77ff', border: '#ffd477ff', background: '#422b00ff' },
+        disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
+      },
+      item: {
+        normal: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
+        pressed: { text: '#8fdd5bff', border: '#8fdd5bff', background: '#183100ff' },
+        disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
+      },
+      default: {
+        normal: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
+        pressed: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
+        disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
+      }
+    };
 
-  const getTextStyles = (pressed) => [
-    styles.buttonText,
-    styles[`${size}ButtonText`],
-    styles[`${variant}ButtonText`],
-    pressed && styles.buttonTextPressed,
-    disabled && styles.buttonTextDisabled,
-    pressed && styles[`${variant}ButtonTextPressed`],
-    disabled && styles[`${variant}ButtonTextDisabled`]
-  ];
+    const variantColors = colors[variant] || colors.default;
+    
+    if (disabled) return variantColors.disabled;
+    if (pressed) return variantColors.pressed;
+    return variantColors.normal;
+  };
+
+  const getButtonStyles = (pressed) => {
+    const colors = getColors(pressed);
+    return [
+      styles.button,
+      styles[`${size}Button`],
+      {
+        backgroundColor: colors.background,
+        borderColor: colors.border,
+      },
+      pressed && styles.buttonPressed,
+      disabled && styles.buttonDisabled,
+    ];
+  };
+
+  const getTextStyles = (pressed) => {
+    const colors = getColors(pressed);
+    return [
+      styles.buttonText,
+      styles[`${size}ButtonText`],
+      {
+        color: colors.text,
+      },
+      pressed && styles.buttonTextPressed,
+      disabled && styles.buttonTextDisabled,
+    ];
+  };
+
+  const getIconColor = (pressed) => {
+    const colors = getColors(pressed);
+    return colors.text;
+  };
+
+  const getIconSize = () => {
+    const sizes = {
+      small: { width: 16, height: 16 },
+      medium: { width: 28, height: 28 },
+      large: { width: 36, height: 36 },
+    };
+    return sizes[size] || sizes.medium;
+  };
 
   return (
     <Pressable
@@ -35,9 +99,18 @@ const BattleButton = ({
       disabled={disabled}
     >
       {({ pressed }) => (
-        <Text style={getTextStyles(pressed)}>
-          {title}
-        </Text>
+        <View style={styles.contentContainer}>
+          {IconComponent && (
+            <IconComponent 
+              {...getIconSize()}
+              color={getIconColor(pressed)}
+              style={styles[`${size}Icon`]}
+            />
+          )}
+          <Text style={getTextStyles(pressed)}>
+            {title}
+          </Text>
+        </View>
       )}
     </Pressable>
   );
@@ -47,126 +120,64 @@ const styles = StyleSheet.create({
   // Базовые стили
   button: {
     paddingVertical: 10,
+    paddingHorizontal: 15,
     alignItems: 'center',
-    backgroundColor: '#000000ff',
-    borderColor: '#307ed6ff',
     borderWidth: 3,
-    margin: 5,
   },
   buttonText: {
     fontSize: 24,
     fontWeight: '800',
     textAlign: 'center',
   },
+  contentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   // Размеры
   smallButton: {
-    width: '18%',
+    width: '16%',
     paddingVertical: 8,
+    paddingHorizontal: 10,
   },
   smallButtonText: {
     fontSize: 16,
   },
+  smallIcon: {
+    marginRight: 6,
+  },
   mediumButton: {
-    width: '22%',
+    width: '18%',
     paddingVertical: 12,
   },
   mediumButtonText: {
     fontSize: 20,
   },
+  mediumIcon: {
+    marginRight: 4,
+  },
   largeButton: {
     width: '25%',
     paddingVertical: 15,
+    paddingHorizontal: 18,
   },
   largeButtonText: {
     fontSize: 24,
   },
-
-  // Кнопка милосердия
-  mercyButton: {
-    backgroundColor: '#000000ff',
-    borderColor: '#307ed6ff',
-  },
-  mercyButtonText: {
-    color: '#307ed6ff',
-  },
-  mercyButtonPressed: {
-    backgroundColor: '#350211ff',
-    borderColor: '#d1517bff',
-  },
-  mercyButtonTextPressed: {
-    color: '#d1517bff',
-  },
-  mercyButtonDisabled: {
-    backgroundColor: '#333333ff',
-    borderColor: '#664466ff',
-  },
-  mercyButtonTextDisabled: {
-    color: '#664466ff',
-  },
-
-  // Кнопка атаки
-  attackButton: {
-    backgroundColor: '#000000ff',
-    borderColor: '#307ed6ff',
-  },
-  attackButtonText: {
-    color: '#307ed6ff',
-  },
-  attackButtonPressed: {
-    backgroundColor: '#3f0700ff',
-    borderColor: '#ee7f63ff',
-  },
-  attackButtonTextPressed: {
-    color: '#ee7f63ff',
-  },
-
-  // Кнопка защиты
-  defendButton: {
-    backgroundColor: '#000000ff',
-    borderColor: '#307ed6ff',
-  },
-  defendButtonText: {
-    color: '#307ed6ff',
-  },
-  defendButtonPressed: {
-    backgroundColor: '#422b00ff',
-    borderColor: '#ffd477ff',
-  },
-  defendButtonTextPressed: {
-    color: '#ffcf77ff',
-
-  },
-
-  // Кнопка предмета
-  itemButton: {
-    backgroundColor: '#000000ff',
-    borderColor: '#307ed6ff',
-  },
-  itemButtonText: {
-    color: '#307ed6ff',
-  },
-  itemButtonPressed: {
-    backgroundColor: '#183100ff',
-    borderColor: '#8fdd5bff',
-  },
-  itemButtonTextPressed: {
-    color: '#8fdd5bff',
+  largeIcon: {
+    marginRight: 10,
   },
 
   // Общие состояния
   buttonPressed: {
     transform: [{scale: 0.98}],
   },
-  buttonTextPressed: {
-    // Общие стили для текста в нажатом состоянии
-  },
+  buttonTextPressed: {},
   buttonDisabled: {
     opacity: 0.8,
   },
-  buttonTextDisabled: {
-    // Общие стили для отключенного текста
-  },
+  buttonTextDisabled: {},
 });
 
 export { BattleButton };

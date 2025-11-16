@@ -3,6 +3,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { BattleButton } from './BattleButton';
 import ImageService from '../services/ImageService';
+import Sword from '../assets/BloodySword.svg';
+import Shield from '../assets/BxsShieldAlt2.svg';
+import Item from '../assets/GarbageResidual.svg';
+import Mercy from '../assets/WindySnow.svg';
 
 const BattleUI = ({ 
   battleState, 
@@ -90,35 +94,34 @@ const BattleUI = ({
       <View style={styles.battleMenu}>
         <View style={styles.actions}>
           <BattleButton 
-            title="⚔️ АТАКА"
+            title="АТАКА"
             onPress={handleAttack}
             disabled={!isPlayerTurn}
             variant="attack"
-            size="medium"
+            icon={Sword}
           />
-          
           <BattleButton 
-            title="🛡️ ЗАЩИТА"
+            title="ЗАЩИТА"
             onPress={onDefend}
             disabled={!isPlayerTurn}
             variant="defend"
-            size="medium"
+            icon={Shield}
           />
-          
           <BattleButton 
-            title="🧪 ПРЕДМЕТ"
+            title="ПРЕДМЕТ"
             onPress={onItem}
             disabled={!isPlayerTurn}
             variant="item"
-            size="medium"
+            icon={Item}
           />
 
           <BattleButton
-            title="❤️ ПОЩАДА"
+            title="ПОЩАДА"
             onPress={onMercy}
             disabled={!isPlayerTurn}
             variant="mercy"
-            size="medium"
+            icon={Mercy}
+            canMercy={mercyAvailable} // Активирует mercy цветовой режим
           />
         </View>
       </View>
