@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-
 const MenuButton = ({ title, onPress }) => {
   return (
     <Pressable
@@ -21,7 +20,6 @@ const MenuButton = ({ title, onPress }) => {
     </Pressable>
   );
 };
-
 const styles = StyleSheet.create({
   button: {
     width: '35%',
