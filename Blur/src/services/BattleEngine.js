@@ -1,18 +1,16 @@
 // services/BattleEngine.js
+import PlayerService from './PlayerService';
+
 class BattleEngine {
-  constructor(playerConfig, enemyConfig) {
-    this.player = {
-      hp: playerConfig.hp || 100,
-      maxHp: playerConfig.hp || 100,
-      attack: playerConfig.attack || 10,
-      name: playerConfig.name || 'Player'
-    };
-    
+  constructor(enemy) {
+    // Принимаем готового врага вместо конфига
     this.enemy = {
-      hp: enemyConfig.hp || 80,
-      maxHp: enemyConfig.hp || 80,
-      attack: enemyConfig.attack || 8,
-      name: enemyConfig.name || 'Enemy'
+      hp: enemy.hp,
+      maxHp: enemy.maxHp,
+      defense: enemy.defense,
+      attack: enemy.attack,
+      name: enemy.name,
+      image: enemy.image
     };
     
     this.round = 1;
@@ -20,12 +18,13 @@ class BattleEngine {
     this.isBattleEnded = false;
     this.mercyAvailable = false;
     this.observers = [];
+    this.lastDamage = 0;
+    this.lastIsCritical = false;
   }
 
   // Подписка на изменения состояния
   subscribe(observer) {
     this.observers.push(observer);
-    // НЕМЕДЛЕННО отправляем текущее состояние новому подписчику
     observer(this.getState());
   }
 
@@ -35,12 +34,14 @@ class BattleEngine {
 
   getState() {
     return {
-      player: { ...this.player },
+      player: PlayerService.getPlayer(),
       enemy: { ...this.enemy },
       round: this.round,
       isPlayerTurn: this.isPlayerTurn,
       isBattleEnded: this.isBattleEnded,
-      mercyAvailable: this.mercyAvailable
+      mercyAvailable: this.mercyAvailable,
+      lastDamage: this.lastDamage,
+      lastIsCritical: this.lastIsCritical
     };
   }
 
@@ -48,8 +49,27 @@ class BattleEngine {
   playerAttack() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
 
-    const damage = Math.floor(Math.random() * this.player.attack) + 5;
+    const player = PlayerService.getPlayer();
+    
+    // Формула урона: базовый урон * рандом (0.5 - 1.2)
+    const baseDamage = player.attack;
+    const randomMultiplier = 0.5 + Math.random() * 0.7;
+    let damage = baseDamage * randomMultiplier;
+    
+    // Проверка на критический удар (~ 7% шанс)
+    const isCritical = Math.random() < 0.07;
+    if (isCritical) {
+      damage *= 1.6;
+    }
+    
+    // Учитываем защиту врага
+    damage = Math.max(1, damage - this.enemy.defense);
+    damage = Math.floor(damage);
+    
     this.enemy.hp = Math.max(0, this.enemy.hp - damage);
+    
+    this.lastDamage = damage;
+    this.lastIsCritical = isCritical;
     
     this.endPlayerTurn();
     
@@ -60,6 +80,9 @@ class BattleEngine {
   playerDefend() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
 
+    this.lastDamage = 0;
+    this.lastIsCritical = false;
+    
     this.endPlayerTurn(true);
     
     this.notifyObservers();
@@ -69,8 +92,11 @@ class BattleEngine {
   playerUseItem() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
 
-    const heal = Math.floor(Math.random() * 20) + 10;
-    this.player.hp = Math.min(this.player.maxHp, this.player.hp + heal);
+    const heal = Math.floor(Math.random() * 20) + 8;
+    PlayerService.heal(heal);
+    
+    this.lastDamage = 0;
+    this.lastIsCritical = false;
     
     this.endPlayerTurn();
     
@@ -80,6 +106,9 @@ class BattleEngine {
 
   playerMercy() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
+
+    this.lastDamage = 0;
+    this.lastIsCritical = false;
 
     if (this.mercyAvailable) {
       this.endBattle('mercy');
@@ -105,17 +134,19 @@ class BattleEngine {
 
   enemyTurn(isPlayerDefending = false) {
     this.round++;
+
+    const playerBefore = PlayerService.getPlayer();
+    let damage = isPlayerDefending 
+      ? Math.floor((0.8 + Math.random() * 0.7) * this.enemy.attack) - Math.floor(playerBefore.defense * 1.4)
+      : Math.floor((0.8 + Math.random() * 0.7) * this.enemy.attack);
     
-    const damage = isPlayerDefending 
-      ? Math.floor(Math.random() * (this.enemy.attack / 2)) + 2
-      : Math.floor(Math.random() * this.enemy.attack) + 3;
-    
-    this.player.hp = Math.max(0, this.player.hp - damage);
+    PlayerService.takeDamage(damage);
     
     this.isPlayerTurn = true;
     this.checkMercyCondition();
     
-    if (this.player.hp <= 0) {
+    const playerAfter = PlayerService.getPlayer();
+    if (playerAfter.hp < 1) {
       this.endBattle('defeat');
     }
     
@@ -130,7 +161,6 @@ class BattleEngine {
     this.isBattleEnded = true;
     this.notifyObservers();
     
-    // Можно добавить колбэк для обработки результатов
     if (this.onBattleEnd) {
       this.onBattleEnd(result, this.getState());
     }
@@ -138,12 +168,13 @@ class BattleEngine {
 
   // Для сброса битвы
   resetBattle() {
-    this.player.hp = this.player.maxHp;
     this.enemy.hp = this.enemy.maxHp;
     this.round = 1;
     this.isPlayerTurn = true;
     this.isBattleEnded = false;
     this.mercyAvailable = false;
+    this.lastDamage = 0;
+    this.lastIsCritical = false;
     
     this.notifyObservers();
   }

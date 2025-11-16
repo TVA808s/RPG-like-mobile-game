@@ -55,7 +55,7 @@ class MusicService {
       if (trackName === 'menu') {
         track = {
           id: 'menu',
-          url: require('../assets/menu.mp3'),
+          url: require('../assets/music/menu.mp3'),
           title: 'Menu Music',
           artist: 'lov3rbo9',
         };
@@ -65,7 +65,7 @@ class MusicService {
           id: 'battle',
           url: 'https://audio.ngfiles.com/1127000/1127253_Undertale-like-Battle-Them.mp3?f1650965154',
           title: 'Battle Music',
-          artist: 'lov3rbo9',
+          artist: '',
         };
       }
 

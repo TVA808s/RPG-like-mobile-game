@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { BattleButton } from './BattleButton';
 import ImageService from '../services/ImageService';
-import Sword from '../assets/BloodySword.svg';
-import Shield from '../assets/BxsShieldAlt2.svg';
-import Item from '../assets/GarbageResidual.svg';
-import Mercy from '../assets/WindySnow.svg';
+import Sword from '../assets/icons/BloodySword.svg';
+import Shield from '../assets/icons/BxsShieldAlt2.svg';
+import Item from '../assets/icons/GarbageResidual.svg';
+import Mercy from '../assets/icons/WindySnow.svg';
 
 const BattleUI = ({ 
   battleState, 
@@ -20,7 +20,7 @@ const BattleUI = ({
   const { player, enemy, round, isPlayerTurn, mercyAvailable } = battleState;
   
   const playerImage = ImageService.getImage('player');
-  const enemyImage = ImageService.getImage('enemy');
+  const enemyImage = ImageService.getImage(enemy.image);
 
   const animateAttack = () => {
     Animated.sequence([

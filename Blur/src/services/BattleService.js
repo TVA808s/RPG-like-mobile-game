@@ -1,3 +1,4 @@
+// services/BattleService.js
 import BattleEngine from './BattleEngine';
 
 class BattleService {
@@ -5,8 +6,8 @@ class BattleService {
     this.currentBattle = null;
   }
 
-  startNewBattle(playerConfig, enemyConfig) {
-    this.currentBattle = new BattleEngine(playerConfig, enemyConfig);
+  startNewBattle(enemy) {
+    this.currentBattle = new BattleEngine(enemy);
     return this.currentBattle;
   }
 

@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import MusicService from '../services/MusicService';
 import BattleService from '../services/BattleService';
+import PlayerService from '../services/PlayerService';
+import EnemyService from '../services/EnemyService';
 import BattleUI from '../components/BattleUI';
 
 const GameScreen = ({ navigation, route }) => {
@@ -22,20 +24,15 @@ const GameScreen = ({ navigation, route }) => {
     try {
       setIsLoading(true);
       
-      const enemy = route.params?.enemy || { 
-        name: 'Enemy', 
-        hp: 80, 
-        attack: 8 
-      };
+      // Получаем врага из EnemyService
+      // const enemyType = route.params?.enemyType || 'skeleton';
+      const enemy = EnemyService.getEnemiesByDifficulty('easy');
       
-      const playerConfig = { 
-        hp: 100, 
-        attack: 10, 
-        name: 'Player' 
-      };
+      // Сбрасываем состояние игрока перед началом битвы
+      PlayerService.reset();
       
-      // Создаем новую битву
-      battleEngineRef.current = BattleService.startNewBattle(playerConfig, enemy);
+      // Создаем новую битву с выбранным врагом
+      battleEngineRef.current = BattleService.startNewBattle(enemy);
       
       // Подписываемся на изменения
       battleEngineRef.current.subscribe((newState) => {
@@ -61,11 +58,6 @@ const GameScreen = ({ navigation, route }) => {
 
   const cleanupBattle = () => {
     if (battleEngineRef.current) {
-      // Отписываемся от событий (если в BattleEngine есть метод unsubscribe)
-      if (battleEngineRef.current.unsubscribe) {
-        // Нужно передать ту же функцию, что и в subscribe
-        // Для этого нужно хранить ссылку на функцию-обработчик
-      }
       BattleService.endCurrentBattle();
     }
     MusicService.playMusic('menu');
@@ -77,7 +69,7 @@ const GameScreen = ({ navigation, route }) => {
     const messages = {
       victory: { 
         title: 'Победа!', 
-        message: 'Вы победили врага!' 
+        message: `Вы победили ${state.enemy.name}!` 
       },
       defeat: { 
         title: 'Поражение!', 
@@ -100,7 +92,7 @@ const GameScreen = ({ navigation, route }) => {
     }
   };
 
-  // Обработчики действий
+  // Обработчики действий (без изменений)
   const handleAttack = () => {
     if (battleEngineRef.current) {
       battleEngineRef.current.playerAttack();
@@ -139,12 +131,6 @@ const GameScreen = ({ navigation, route }) => {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>Ошибка загрузки битвы</Text>
-        <TouchableOpacity 
-          style={styles.retryButton}
-          onPress={initializeBattle}
-        >
-          <Text style={styles.retryButtonText}>Повторить</Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -176,16 +162,6 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 18,
     marginBottom: 20,
-  },
-  retryButton: {
-    backgroundColor: '#4444ff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontSize: 16,
   },
 });
 
