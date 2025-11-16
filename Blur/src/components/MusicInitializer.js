@@ -18,7 +18,7 @@ const MusicInitializer = ({ children }) => {
     
     // Очистка при размонтировании компонента
     return () => {
-      musicService.destroy();
+      musicService.cleanup(); // Используем cleanup вместо destroy
     };
   }, []);
 

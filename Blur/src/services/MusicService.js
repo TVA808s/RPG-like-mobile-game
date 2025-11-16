@@ -118,8 +118,8 @@ class MusicService {
     }
   }
 
-  // Очистка ресурсов
-  async destroy() {
+  // Очистка ресурсов - используем только reset вместо destroy
+  async cleanup() {
     if (this.appStateListener) {
       this.appStateListener.remove();
       this.appStateListener = null;
@@ -127,11 +127,10 @@ class MusicService {
     
     try {
       await TrackPlayer.reset();
-      await TrackPlayer.destroy();
       this.isInitialized = false;
-      console.log('MusicService destroyed');
+      console.log('MusicService cleaned up');
     } catch (error) {
-      console.log('Destroy error:', error.message);
+      console.log('Cleanup error:', error.message);
     }
   }
 }
