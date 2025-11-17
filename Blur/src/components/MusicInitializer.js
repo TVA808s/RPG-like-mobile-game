@@ -13,8 +13,7 @@ const MusicInitializer = ({ children }) => {
       }
     };
 
-    // Задержка для избежания конфликтов при запуске
-    setTimeout(initMusic, 200);
+
     
     // Очистка при размонтировании компонента
     return () => {

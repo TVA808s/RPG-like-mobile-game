@@ -79,7 +79,7 @@ class BattleEngine {
 
   playerDefend() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
-
+    soundService.playSound('player.shield');
     this.lastDamage = 0;
     this.lastIsCritical = false;
     
@@ -91,7 +91,7 @@ class BattleEngine {
 
   playerUseItem() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
-
+    soundService.playSound('player.heal');
     const heal = Math.floor(Math.random() * 20) + 8;
     PlayerService.heal(heal);
     
@@ -106,7 +106,7 @@ class BattleEngine {
 
   playerMercy() {
     if (!this.isPlayerTurn || this.isBattleEnded) return false;
-
+    soundService.playSound('player.mercy');
     this.lastDamage = 0;
     this.lastIsCritical = false;
 
@@ -126,8 +126,9 @@ class BattleEngine {
     this.isPlayerTurn = false;
     
     if (this.enemy.hp > 0) {
-      setTimeout(() => this.enemyTurn(isDefending), 1000);
+      setTimeout(() => this.enemyTurn(isDefending), 600);
     } else {
+      soundService.playSound('enemy.death');
       this.endBattle('victory');
     }
   }
@@ -148,6 +149,7 @@ class BattleEngine {
     
     const playerAfter = PlayerService.getPlayer();
     if (playerAfter.hp < 1) {
+      soundService.playSound('player.death');
       this.endBattle('defeat');
     }
     

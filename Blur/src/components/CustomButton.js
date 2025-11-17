@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, View } from 'react-native';
 
-const BattleButton = ({ 
+const CustomButton = ({ 
   title, 
   onPress, 
   disabled = false, 
@@ -37,11 +37,16 @@ const BattleButton = ({
         pressed: { text: '#8fdd5bff', border: '#8fdd5bff', background: '#183100ff' },
         disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
       },
+      menu: {
+        normal: { text: 'grey', border: 'transparent', background: 'transparent' },
+        pressed: { text: '#fffa78', border: 'white', background: '#b5b5b5' },
+        disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
+      },
       default: {
         normal: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
         pressed: { text: '#307ed6ff', border: '#307ed6ff', background: '#000000ff' },
         disabled: { text: '#686868ff', border: '#686868ff', background: '#333333ff' }
-      }
+      },
     };
 
     const variantColors = colors[variant] || colors.default;
@@ -53,29 +58,51 @@ const BattleButton = ({
 
   const getButtonStyles = (pressed) => {
     const colors = getColors(pressed);
-    return [
+    const baseStyles = [
       styles.button,
-      styles[`${size}Button`],
-      {
-        backgroundColor: colors.background,
-        borderColor: colors.border,
-      },
+      { backgroundColor: colors.background, borderColor: colors.border },
       pressed && styles.buttonPressed,
       disabled && styles.buttonDisabled,
     ];
+
+    // Для menu варианта применяем специальные стили
+    if (variant === 'menu') {
+      baseStyles.push(styles.menuButton);
+      if (pressed) {
+        baseStyles.push(styles.menuButtonPressed);
+      }
+    } else {
+      // Для остальных вариантов применяем размерные стили
+      baseStyles.push(styles[`${size}Button`]);
+      if (pressed) {
+        baseStyles.push(styles.buttonPressed);
+      }
+    }
+
+    return baseStyles;
   };
 
   const getTextStyles = (pressed) => {
     const colors = getColors(pressed);
-    return [
+    const baseStyles = [
       styles.buttonText,
-      styles[`${size}ButtonText`],
-      {
-        color: colors.text,
-      },
+      { color: colors.text },
       pressed && styles.buttonTextPressed,
       disabled && styles.buttonTextDisabled,
     ];
+
+    // Для menu варианта применяем специальные стили текста
+    if (variant === 'menu') {
+      baseStyles.push(styles.menuButtonText);
+      if (pressed) {
+        baseStyles.push(styles.menuButtonTextPressed);
+      }
+    } else {
+      // Для остальных вариантов применяем размерные стили текста
+      baseStyles.push(styles[`${size}ButtonText`]);
+    }
+
+    return baseStyles;
   };
 
   const getIconColor = (pressed) => {
@@ -135,7 +162,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Размеры
+  // Стили для menu варианта (из MenuButton)
+  menuButton: {
+    width: '35%',
+    paddingVertical: 10,
+    alignItems: 'center',
+    margin: 10,
+  },
+  menuButtonPressed: {
+    borderWidth: 3,
+    transform: [{ scale: 1.05 }],
+  },
+  menuButtonText: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  menuButtonTextPressed: {
+    fontWeight: '800',
+  },
+
+  // Размеры для battle вариантов
   smallButton: {
     width: '16%',
     paddingVertical: 8,
@@ -180,4 +226,4 @@ const styles = StyleSheet.create({
   buttonTextDisabled: {},
 });
 
-export { BattleButton };
+export { CustomButton };

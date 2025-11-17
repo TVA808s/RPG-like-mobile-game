@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'; 
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MenuButton } from '../components/MenuButton';
 import musicService from '../services/MusicService';
 import soundService from '../services/SoundService';
 import { SettingsService } from '../services/SettingsService';
 import Slider from '@react-native-community/slider';
+import { CustomButton } from '../components/CustomButton';
 const SettingsScreen = ({ navigation }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState(0.8);
@@ -167,8 +167,7 @@ const SettingsScreen = ({ navigation }) => {
           </View>
         </View>
       </View>
-
-      <MenuButton onPress={handleBack} title="BACK TO MENU" />
+      <CustomButton onPress={handleBack} title="BACK TO MENU" variant='menu'/>
     </View>
   );
 };

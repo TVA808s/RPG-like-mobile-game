@@ -1,7 +1,7 @@
 import {React, useEffect, useRef} from 'react';
 import { View, Text, StyleSheet, BackHandler, AppState } from 'react-native';
-import { MenuButton } from '../components/MenuButton';
 import musicService from '../services/MusicService';
+import {CustomButton} from '../components/CustomButton';
 
 const MenuScreen = ({ navigation }) => {
   const appState = useRef(AppState.currentState);
@@ -47,9 +47,9 @@ const MenuScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.logo}>LUTEANRED</Text>
-      <MenuButton onPress={handlePlay} title="PLAY" />
-      <MenuButton onPress={handleSettings} title="SETTINGS" />
-      <MenuButton onPress={handleExit} title="EXIT" />
+      <CustomButton onPress={handlePlay} title="PLAY" variant='menu'/>
+      <CustomButton onPress={handleSettings} title="SETTINGS" variant='menu' />
+      <CustomButton onPress={handleExit} title="EXIT" variant='menu'/>
     </View>
   );
 };

@@ -86,7 +86,12 @@ class SoundService {
   async preloadGameSounds() {
     const soundConfigs = {
       'player.attack': require('../assets/sounds/hit2.mp3'),
-      'player.hit': require('../assets/sounds/hit1.mp3'),
+      'player.hit': require('../assets/sounds/hit3.mp3'),
+      'player.death': require('../assets/sounds/death2.mp3'),
+      'player.heal': require('../assets/sounds/heal.mp3'),
+      'player.shield': require('../assets/sounds/shield.mp3'),
+      'player.mercy': require('../assets/sounds/mercy.mp3'),
+      'enemy.death': require('../assets/sounds/death1.mp3'),
     };
 
     try {

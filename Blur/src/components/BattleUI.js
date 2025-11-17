@@ -1,13 +1,12 @@
 // components/BattleUI.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
-import { BattleButton } from './BattleButton';
+import { CustomButton } from './CustomButton';
 import ImageService from '../services/ImageService';
 import Sword from '../assets/icons/BloodySword.svg';
 import Shield from '../assets/icons/BxsShieldAlt2.svg';
 import Item from '../assets/icons/GarbageResidual.svg';
 import Mercy from '../assets/icons/WindySnow.svg';
-import soundService from '../services/SoundService';
 
 const BattleUI = ({ 
   battleState, 
@@ -89,24 +88,24 @@ const BattleUI = ({
         </View>
       </View>
 
-      {/* Меню действий с BattleButton */}
+      {/* Меню действий с CustomButton*/}
       <View style={styles.battleMenu}>
         <View style={styles.actions}>
-          <BattleButton 
+          <CustomButton
             title="АТАКА"
             onPress={handleAttack}
             disabled={!isPlayerTurn}
             variant="attack"
             icon={Sword}
           />
-          <BattleButton 
+          <CustomButton
             title="ЗАЩИТА"
             onPress={onDefend}
             disabled={!isPlayerTurn}
             variant="defend"
             icon={Shield}
           />
-          <BattleButton 
+          <CustomButton
             title="ПРЕДМЕТ"
             onPress={onItem}
             disabled={!isPlayerTurn}
@@ -114,7 +113,7 @@ const BattleUI = ({
             icon={Item}
           />
 
-          <BattleButton
+          <CustomButton
             title="ПОЩАДА"
             onPress={onMercy}
             disabled={!isPlayerTurn}
