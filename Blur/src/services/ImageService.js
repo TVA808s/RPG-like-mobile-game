@@ -3,15 +3,9 @@ class ImageService {
   constructor() {
     this.images = {
       player: require('../assets/images/player.png'),
-      // Изображения врагов
       skeleton: require('../assets/images/skeleton.png'),
       goblin: require('../assets/images/goblin.png'),
-      // orc: require('../assets/images/orc.png'),
-      // dragon: require('../assets/images/dragon.png'),
-      // lich: require('../assets/images/lich.png'),
-      // ghost: require('../assets/images/ghost.png'),
-      // Заглушка по умолчанию
-
+      enemy: require('../assets/images/enemy.png'),
     };
   }
 

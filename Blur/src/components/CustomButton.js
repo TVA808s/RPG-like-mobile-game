@@ -14,7 +14,7 @@ const CustomButton = ({
   const getColors = (pressed) => {
     const colors = {
       mercy: {
-        normal: { 
+        normal: {
           text: canMercy ? '#8e52f0ff' : '#307ed6ff', 
           border: canMercy ? '#0059ffff' : '#307ed6ff', 
           background: canMercy ? '#1f1e20ff' : '#000000ff' 

@@ -8,7 +8,8 @@ class EnemyService {
         maxHp: 80,
         defense: 6,
         attack: 11,
-        image: 'skeleton'
+        image: 'skeleton',
+        expRange: { min: 10, max: 20 }
       },
       goblin: {
         name: 'Гоблин',
@@ -16,7 +17,8 @@ class EnemyService {
         maxHp: 60,
         defense: 2,
         attack: 14,
-        image: 'goblin'
+        image: 'goblin',
+        expRange: { min: 15, max: 25 }
       },
       orc: {
         name: 'Орк',
@@ -24,7 +26,8 @@ class EnemyService {
         maxHp: 120,
         defense: 4,
         attack: 17,
-        image: 'orc'
+        image: 'orc',
+        expRange: { min: 25, max: 40 }
       },
       
       // Боссы
@@ -34,7 +37,8 @@ class EnemyService {
         maxHp: 300,
         defense: 10,
         attack: 24,
-        image: 'dragon'
+        image: 'dragon',
+        expRange: { min: 100, max: 150 }
       },
       lich: {
         name: 'Лич',
@@ -42,7 +46,8 @@ class EnemyService {
         maxHp: 200,
         defense: 6,
         attack: 20,
-        image: 'lich'
+        image: 'lich',
+        expRange: { min: 80, max: 120 }
       },
       
       // Специальные враги
@@ -52,14 +57,19 @@ class EnemyService {
         maxHp: 50,
         defense: 0,
         attack: 20,
-        image: 'ghost'
+        image: 'ghost',
+        expRange: { min: 30, max: 50 }
       }
     };
   }
 
   getEnemy(enemyType) {
-    return this.enemies[enemyType];
-    
+    const enemy = {...this.enemies[enemyType]};
+    // Генерируем случайное количество опыта в заданном диапазоне
+    if (enemy.expRange) {
+      enemy.exp = Math.floor(Math.random() * (enemy.expRange.max - enemy.expRange.min + 1)) + enemy.expRange.min;
+    }
+    return enemy;
   }
 
   getAllEnemies() {
