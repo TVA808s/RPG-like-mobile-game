@@ -31,6 +31,7 @@ const BattleUI = ({
   // Определяем сложность на основе уровня игрока
   const difficulty = getDifficultyByLevel ? getDifficultyByLevel(player.level) : 'easy';
   
+  
   // Эффект для отображения уведомления о повышении уровня
   useEffect(() => {
     if (currentLevelsGained > 0) {

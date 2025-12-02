@@ -45,18 +45,18 @@ const GameScreen = ({ navigation, route }) => {
       ]);
     }
   };
-
+  // Определение сложности противника в зависимости от уровня игрока
   const getDifficultyByLevel = (playerLevel) => {
     if (playerLevel >= 5) return 'hard';
     if (playerLevel >= 3) return 'medium';
     return 'easy';
   };
-
+  // начало нового сражения
   const startNewBattle = () => {
     try {
       setIsLoading(true);
       
-      // Получаем текущий уровень игрока для определения сложности
+      // Определяем сложность
       const player = PlayerService.getPlayer();
       const difficulty = getDifficultyByLevel(player.level);
       
@@ -86,7 +86,7 @@ const GameScreen = ({ navigation, route }) => {
       setIsLoading(false);
     }
   };
-
+  // сообщение о победе над врагом
   const showVictoryMessage = (enemyName) => {
     setVictoryMessage(`${enemyName} побежден!`);
     
@@ -97,7 +97,7 @@ const GameScreen = ({ navigation, route }) => {
   };
 
 
-
+  // Обработка исхода битвы
   const handleBattleEnd = (result, state) => {
     console.log('Battle ended with result:', result);
     
@@ -122,7 +122,7 @@ const GameScreen = ({ navigation, route }) => {
         break;
     }
   };
-
+  // Вывод статистики по игре после поражения
   const showGameOverStats = () => {
     const player = PlayerService.getPlayer();
     const battles = BattleService.getTotalBattles();
@@ -155,7 +155,7 @@ const GameScreen = ({ navigation, route }) => {
       ]
     );
   };
-
+  // Сброс боя
   const cleanupBattle = () => {
     if (battleEngineRef.current) {
       BattleService.endCurrentBattle();
@@ -188,7 +188,7 @@ const GameScreen = ({ navigation, route }) => {
     }
   };
 
-  // Состояние загрузки
+  // Состояние загрузки игры
   if (isLoading || !battleState) {
     return (
       <View style={styles.container}>

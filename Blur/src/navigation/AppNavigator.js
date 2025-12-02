@@ -5,6 +5,7 @@ import MenuScreen from '../screens/MenuScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import GameScreen from '../screens/GameScreen';
 import MusicInitializer from '../components/MusicInitializer';
+import NotificationDemoScreen from '../screens/NotificationDemoScreen';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -29,6 +30,10 @@ const AppNavigator = () => {
             component={MenuScreen}
             options={{ title: 'MenuScreen' }}
           />
+          <Stack.Screen 
+            name="NotificationDemoScreen" 
+            component={NotificationDemoScreen} 
+            options={{ title: 'NotificationDemoScreen' }}/>
           <Stack.Screen 
             name="Settings" 
             component={SettingsScreen}
