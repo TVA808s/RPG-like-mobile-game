@@ -33,10 +33,6 @@ const MenuScreen = ({ navigation }) => {
   const handlePlay = () => {
     navigation.navigate('Game');
   };
-
-  const handlePlatformDemo = () => {
-    navigation.navigate('NotificationDemoScreen')
-  };
   const handleSettings = () => {
     navigation.navigate('Settings');
   };
@@ -51,7 +47,6 @@ const MenuScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.logo}>LUTEANRED</Text>
       <CustomButton onPress={handlePlay} title="PLAY" variant='menu'/>
-      <CustomButton onPress={handlePlatformDemo} title="PlatformScreen" variant='menu'/>
       <CustomButton onPress={handleSettings} title="SETTINGS" variant='menu' />
       <CustomButton onPress={handleExit} title="EXIT" variant='menu'/>
     </View>

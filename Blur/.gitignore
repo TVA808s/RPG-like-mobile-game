@@ -69,3 +69,6 @@ yarn-error.log
 .expo
 dist/
 web-build/
+
+__mocks__/
+__tests__/
